@@ -1,0 +1,30 @@
+.theme-toggle-container {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--card);
+  padding: 0.4rem;
+  border-radius: 50px;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+.theme-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.theme-btn.active {
+  background: var(--primary);
+  border-color: var(--accent);
+}
+
+.theme-icon {
+  font-size: 1.2rem;
+}

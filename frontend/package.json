@@ -1,0 +1,33 @@
+{
+  "name": "miro",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "axios": "^1.6.0",
+    "framer-motion": "^10.16.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "recharts": "^2.10.0",
+    "three": "^0.182.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "root": true
+  },
+  "devDependencies": {
+    "eslint-config-react-app": "^7.0.1",
+    "react-scripts": "^5.0.1"
+  }
+}

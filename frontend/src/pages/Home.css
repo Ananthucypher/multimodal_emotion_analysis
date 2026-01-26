@@ -1,0 +1,97 @@
+.home-page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.hero-section {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--textSecondary);
+  margin-bottom: 3rem;
+  line-height: 1.8;
+}
+
+.cta-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1.2rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.features-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card {
+  background: var(--card);
+  padding: 2.5rem;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px var(--shadow);
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  color: var(--text);
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.feature-card p {
+  color: var(--textSecondary);
+  line-height: 1.6;
+}
+
+.trust-section {
+  text-align: center;
+  padding: 6rem 2rem;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+.trust-section h2 {
+  color: var(--text);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.trust-section p {
+  color: var(--textSecondary);
+  font-size: 1.1rem;
+}
