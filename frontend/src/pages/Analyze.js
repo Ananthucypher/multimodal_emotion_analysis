@@ -4,10 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Analyze.css';
 
+// Use environment variable or fallback to localhost
+// Use environment variable or fallback to 127.0.0.1 to avoid localhost IPv6 issues
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000';
+
 const Analyze = () => {
   const [video, setVideo] = useState(null);
   const [videoName, setVideoName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const navigate = useNavigate();
 
@@ -25,6 +30,7 @@ const Analyze = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    setError(null);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
@@ -34,6 +40,7 @@ const Analyze = () => {
   };
 
   const handleChange = (e) => {
+    setError(null);
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setVideo(file);
@@ -45,16 +52,48 @@ const Analyze = () => {
     if (!video) return;
 
     setLoading(true);
+    setError(null);
     const formData = new FormData();
     formData.append("video", video);
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/analyze_full_video", formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      navigate('/results', { state: { data: response.data } });
-    } catch (error) {
-      console.error(error);
+      // 1. Submit Job
+      // 1. Submit Job
+      // Note: Do NOT set Content-Type header manually for FormData; Axios handles it.
+      const response = await axios.post(`${API_URL}/analyze_full_video`, formData);
+
+      const { job_id } = response.data;
+
+      // 2. Poll Status
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusRes = await axios.get(`${API_URL}/status/${job_id}`);
+          const { status, result, error: jobError, progress } = statusRes.data;
+
+          if (status === 'completed') {
+            clearInterval(pollInterval);
+            navigate('/results', { state: { data: result } });
+          } else if (status === 'failed') {
+            clearInterval(pollInterval);
+            setLoading(false);
+            setError(jobError || 'Analysis failed unexpectedly.');
+          } else {
+            // Optional: Update loading UI with progress if you add state for it
+            console.log(`Processing: ${progress}%`);
+          }
+        } catch (pollErr) {
+          clearInterval(pollInterval);
+          setLoading(false);
+          setError('Network error while checking status');
+        }
+      }, 2000); // Check every 2s
+
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err.response?.data?.message ||
+        err.message ||
+        'Submission failed. Please try again.';
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -110,6 +149,26 @@ const Analyze = () => {
             >
               Begin Analysis
             </motion.button>
+
+            {error && (
+              <motion.div
+                className="error-toast"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  marginTop: '1rem',
+                  padding: '1rem 1.5rem',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  borderRadius: '12px',
+                  color: '#fca5a5',
+                  textAlign: 'center'
+                }}
+              >
+                <span style={{ marginRight: '0.5rem' }}>⚠️</span>
+                {error}
+              </motion.div>
+            )}
           </motion.div>
         ) : (
           <motion.div

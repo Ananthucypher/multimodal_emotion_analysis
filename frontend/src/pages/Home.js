@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-// import AnimatedBackground from '../components/AnimatedBackground';
+import AnimatedBackground from '../components/AnimatedBackground';
 import './Home.css';
 
 const Home = ({ theme }) => {
@@ -15,7 +15,7 @@ const Home = ({ theme }) => {
 
   return (
     <div className="home-page">
-      {/* <AnimatedBackground /> */}
+      <AnimatedBackground />
 
       <motion.section
         className="hero-section"

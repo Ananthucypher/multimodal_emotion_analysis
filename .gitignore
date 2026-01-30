@@ -35,3 +35,9 @@ temp_video.mp4
 *.wav
 *.avi
 *.mov
+
+# Models (Do not sync large files)
+*.gguf
+*.bin
+backend/models/whisper/
+backend/models/hub/

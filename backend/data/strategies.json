@@ -1,0 +1,123 @@
+{
+    "strategies": [
+        {
+            "id": "cbt_reframe_positive",
+            "name": "Cognitive Reframing (Positive)",
+            "triggers": [
+                "happy",
+                "neutral"
+            ],
+            "conditions": [
+                "congruent"
+            ],
+            "technique": "Cognitive Behavioral Therapy - Positive Reinforcement",
+            "description": "Celebrate and anchor positive emotions to strengthen resilient thought patterns. Encourage the patient to identify what contributed to this positive state and how to recreate it.",
+            "prompt_context": "The patient is in a positive emotional state. Use CBT to help them recognize and reinforce this healthy pattern."
+        },
+        {
+            "id": "dbt_opposite_action_sad",
+            "name": "Opposite Action (Sadness)",
+            "triggers": [
+                "sad"
+            ],
+            "conditions": [
+                "congruent"
+            ],
+            "technique": "Dialectical Behavior Therapy - Opposite Action",
+            "description": "When sadness is the dominant emotion, guide the patient to engage in activities that oppose withdrawal (e.g., gentle movement, reaching out to someone).",
+            "prompt_context": "The patient shows sadness. Apply DBT's Opposite Action: suggest small, actionable steps that counter the urge to isolate."
+        },
+        {
+            "id": "cbt_anger_management",
+            "name": "Anger De-escalation",
+            "triggers": [
+                "angry"
+            ],
+            "conditions": [
+                "congruent"
+            ],
+            "technique": "Cognitive Behavioral Therapy - Anger Management",
+            "description": "Help the patient identify the thought distortion fueling anger (e.g., 'should' statements, catastrophizing) and reframe it.",
+            "prompt_context": "The patient is experiencing anger. Use CBT to gently challenge the underlying thought and offer a grounding technique (e.g., 4-7-8 breathing)."
+        },
+        {
+            "id": "somatic_fear_grounding",
+            "name": "Somatic Grounding (Fear/Anxiety)",
+            "triggers": [
+                "fear"
+            ],
+            "conditions": [
+                "congruent"
+            ],
+            "technique": "Somatic Therapy - 5-4-3-2-1 Grounding",
+            "description": "For fear or anxiety, bring the patient back to the present using sensory grounding (5 things you see, 4 you hear, 3 you touch, 2 you smell, 1 you taste).",
+            "prompt_context": "The patient is anxious or fearful. Guide them through a quick grounding exercise to interrupt the fear response."
+        },
+        {
+            "id": "sarcasm_detector",
+            "name": "Incongruence Analysis (Possible Sarcasm/Masking)",
+            "triggers": [
+                "any"
+            ],
+            "conditions": [
+                "high_incongruence",
+                "potential_masking"
+            ],
+            "technique": "Emotion-Focused Therapy - Validation of Hidden Feelings",
+            "description": "When facial, vocal, and verbal signals conflict, validate that it's okay to have mixed or hidden emotions. Gently explore what might be underneath the mask.",
+            "prompt_context": "The analysis detected conflicting emotional signals (e.g., smiling face but sad voice). Acknowledge this complexity without judgment and invite the patient to explore it if they feel safe."
+        },
+        {
+            "id": "surprise_curiosity",
+            "name": "Curiosity Exploration (Surprise)",
+            "triggers": [
+                "surprise"
+            ],
+            "conditions": [
+                "congruent"
+            ],
+            "technique": "Positive Psychology - Savoring",
+            "description": "Surprise can be positive or negative. Encourage the patient to explore and savor the moment if it's pleasant, or process it mindfully if it's unsettling.",
+            "prompt_context": "The patient is surprised. Help them reflect on this unexpected moment—what does it tell them about their expectations or needs?"
+        },
+        {
+            "id": "disgust_boundary_setting",
+            "name": "Boundary Awareness (Disgust)",
+            "triggers": [
+                "disgust"
+            ],
+            "conditions": [
+                "congruent"
+            ],
+            "technique": "Acceptance and Commitment Therapy - Values Clarification",
+            "description": "Disgust often signals a violated boundary or value. Help the patient identify what boundary was crossed and how to honor it moving forward.",
+            "prompt_context": "The patient feels disgust. This emotion often protects values. Help them name what feels wrong and how to set a healthier boundary."
+        },
+        {
+            "id": "neutral_check_in",
+            "name": "Neutral State Check-In",
+            "triggers": [
+                "neutral"
+            ],
+            "conditions": [
+                "congruent"
+            ],
+            "technique": "Mindfulness - Present Moment Awareness",
+            "description": "Neutrality can be peace or numbness. Gently check in: is this calm contentment or emotional suppression?",
+            "prompt_context": "The patient appears neutral. Explore whether this is healthy equilibrium or emotional avoidance."
+        },
+        {
+            "id": "mixed_validation",
+            "name": "Mixed Emotions Validation",
+            "triggers": [
+                "any"
+            ],
+            "conditions": [
+                "potential_mismatch"
+            ],
+            "technique": "Emotion-Focused Therapy - Normalizing Complexity",
+            "description": "When emotions don't align perfectly, normalize that humans can feel multiple things at once (e.g., happy about news but anxious about change).",
+            "prompt_context": "The patient shows subtle emotional complexity. Validate that it's normal to feel more than one thing simultaneously."
+        }
+    ]
+}
