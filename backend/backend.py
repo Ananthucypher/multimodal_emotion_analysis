@@ -1,12 +1,15 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import os
 import tempfile
 import uuid
+import json
+import time
 from celery.result import AsyncResult
 from celery_config import celery_app
 import tasks  # Import tasks to register them
 import logging
+from state_emission import subscribe_to_job, get_latest_state
 
 # Load environment variables
 try:
@@ -31,15 +34,13 @@ def allowed_file(filename):
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "healthy", "service": "MIRO Backend API"}), 200
+    return jsonify({"status": "healthy", "service": "MIRO Backend API", "streaming": True}), 200
 
 @app.route("/analyze_full_video", methods=["POST"])
 def analyze_full_video():
     """
     Main entry point. Submits video for async processing.
-    Returns: Job ID.
-    Currently maintains backward compatibility by returning 'job_id' 
-    Users/Frontend need to poll /status/<job_id>
+    Returns: Job ID + stream URL for SSE consumption.
     """
     if 'video' not in request.files:
         return jsonify({"error": "No video file provided"}), 400
@@ -52,8 +53,6 @@ def analyze_full_video():
         return jsonify({"error": "Invalid file type"}), 400
 
     # Save file to a persistent temp location that workers can access
-    # Note: In production with distributed workers, this should be S3/Shared Volume.
-    # For local Celery, /tmp or local path works.
     upload_dir = os.path.join(tempfile.gettempdir(), "miro_uploads")
     os.makedirs(upload_dir, exist_ok=True)
     
@@ -75,21 +74,80 @@ def analyze_full_video():
     return jsonify({
         "message": "Video submitted for processing",
         "job_id": task.id,
-        "status": "queued"
+        "status": "queued",
+        "stream_url": f"/stream/{task.id}"  # SSE endpoint for progressive updates
     }), 202
+
+
+@app.route("/stream/<job_id>", methods=["GET"])
+def stream_job(job_id):
+    """
+    SSE Streaming Endpoint - P0 Implementation
+    
+    Streams progressive state updates for a job via Server-Sent Events.
+    Replaces polling with real-time push notifications.
+    
+    Event Format:
+        event: state_update
+        data: {"state": "FACE_READY", "payload": {...}, "progress_percent": 35}
+    """
+    def generate():
+        # Send initial connection confirmation
+        yield f"event: connected\ndata: {json.dumps({'job_id': job_id, 'status': 'streaming'})}\n\n"
+        
+        # Check for late joiner - send latest state if available
+        latest = get_latest_state(job_id)
+        if latest:
+            yield f"event: state_update\ndata: {json.dumps(latest)}\n\n"
+            if latest.get('is_terminal'):
+                yield f"event: complete\ndata: {json.dumps({'job_id': job_id})}\n\n"
+                return
+        
+        # Subscribe to Redis Pub/Sub for this job
+        try:
+            for state_data in subscribe_to_job(job_id):
+                # Format as SSE
+                yield f"event: state_update\ndata: {json.dumps(state_data)}\n\n"
+                
+                # If terminal state, close stream
+                if state_data.get('is_terminal'):
+                    yield f"event: complete\ndata: {json.dumps({'job_id': job_id, 'result_url': f'/status/{job_id}'})}\n\n"
+                    break
+                    
+        except GeneratorExit:
+            # Client disconnected
+            logging.info(f"Client disconnected from stream {job_id}")
+        except Exception as e:
+            logging.error(f"Stream error for {job_id}: {e}")
+            yield f"event: error\ndata: {json.dumps({'error': str(e)})}\n\n"
+    
+    return Response(
+        generate(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'  # Disable nginx buffering if present
+        }
+    )
+
 
 @app.route("/status/<job_id>", methods=["GET"])
 def get_status(job_id):
-    """Check job status and retrieve results if done"""
+    """Check job status and retrieve results if done (legacy polling fallback)"""
     task_result = AsyncResult(job_id, app=celery_app)
+    
+    # Also check for latest streamed state
+    latest_state = get_latest_state(job_id)
     
     response = {
         "job_id": job_id,
         "status": task_result.status,
+        "latest_state": latest_state.get('state') if latest_state else None,
+        "progress_percent": latest_state.get('progress_percent', 0) if latest_state else 0
     }
     
     if task_result.state == 'PENDING':
-        # Job has not started yet
         response.update({"progress": 0, "message": "Job is queued..."})
         
     elif task_result.state == 'PROGRESS':
@@ -115,14 +173,12 @@ def get_status(job_id):
         
     return jsonify(response)
 
-# Legacy/Sync route fallback if frontend is unaware of async (Optional)
-# For this upgrade, we assume we will update frontend or use a proxy.
-# But existing frontend calls /analyze_full_video expecting immediate JSON.
-# WE BREAK COMPATIBILITY HERE, AS PLANNED. Frontend updates needed next.
 
 if __name__ == "__main__":
     print("="*60)
-    print("🚀 MIRO Async Backend Starting...")
-    print("Use 'celery -A celery_config.celery_app worker --loglevel=info' to start worker")
+    print("🚀 MIRO Async Backend with SSE Streaming")
+    print("   • POST /analyze_full_video - Submit video")
+    print("   • GET  /stream/<job_id>    - SSE progressive updates")
+    print("   • GET  /status/<job_id>    - Legacy polling (fallback)")
     print("="*60)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)

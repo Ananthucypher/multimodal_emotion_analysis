@@ -4,8 +4,8 @@ import time
 
 logger = logging.getLogger(__name__)
 
-# Ollama runs locally on port 11434
-OLLAMA_URL = "http://localhost:11434/api/generate"
+# Ollama runs locally on port 11434 (use 127.0.0.1 for Windows compatibility)
+OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 MODEL_NAME = "llama3.1"
 
 def query_ollama(prompt, max_tokens=300, temperature=0.7, retries=2):
